@@ -1,0 +1,58 @@
+﻿<Page
+    x:Class="_3DCars.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:_3DCars"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:maps="using:Windows.UI.Xaml.Controls.Maps"
+    mc:Ignorable="d">
+
+    <Grid x:Name="RootGrid" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <CommandBar>
+            <CommandBar.Content>
+                <TextBlock Text="{x:Bind ViewModel.City, Mode=OneWay}" Margin="12,14"/>
+            </CommandBar.Content>
+            <AppBarToggleButton Icon="World" Label="Globe" IsChecked="{x:Bind ViewModel.IsGlobeProjection, Mode=TwoWay}" />
+            <AppBarSeparator />
+            <AppBarButton x:Name="DemoButton" Icon="SolidStar" Label="Demo" Command="{x:Bind ViewModel.DemoCommand}" />
+        </CommandBar>
+
+        <maps:MapControl Grid.Row="1"
+            x:Name="MyMap"
+            Loaded="MyMap_Loaded"
+            MapContextRequested="MyMap_MapContextRequested"
+            MapProjection="{x:Bind ViewModel.MapProjection, Mode=OneWay}"
+            Style="{x:Bind ViewModel.MapStyle, Mode=OneWay}"
+            >
+            <maps:MapControl.ContextFlyout>
+                <MenuFlyout x:Name="contextMenu">
+                    <MenuFlyoutSeparator />
+                    <MenuFlyoutItem
+                        Tag="Rome"
+                        Text="Go to Rome, Italy"
+                        Click="GoToMenuItem_Click"/>
+                    <MenuFlyoutItem
+                        Tag="San Francisco"
+                        Text="Go to San Francisco, US"
+                        Click="GoToMenuItem_Click"/>
+                    <MenuFlyoutItem
+                        Tag="Seattle"
+                        Text="Go to Seattle, US"
+                        Click="GoToMenuItem_Click"/>
+                </MenuFlyout>
+            </maps:MapControl.ContextFlyout>
+        </maps:MapControl>
+
+        <StackPanel HorizontalAlignment="Left" VerticalAlignment="Center" Width="200">
+            <TextBlock x:Name="Status" Text="" />
+        </StackPanel>
+
+    </Grid>
+
+</Page>
