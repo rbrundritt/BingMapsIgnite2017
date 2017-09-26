@@ -10,7 +10,17 @@ Code samples and resources from the Bing Maps session at the Ignite 2017 confere
 	* [Distance Matrix API](http://bmlabs.azurewebsites.net/v8-TSP/index.html)
 	* [Local Insights API](http://bmlabs.azurewebsites.net/v8-NavJoin/index.html)
 * [Bing Maps V8 demos](http://bingmapsv8samples.azurewebsites.net/)
-* Windos UWP demo - Source code in the 3DCars folder. You will need to add your Bing Maps key into the MainPage.xaml.cs file where it says "Your_Bing_Maps_Key". You can find informaiton on creating a Bing Maps account and key here. Requires [Fall Creators Update and SDK](https://www.microsoft.com/en-us/software-download/windowsinsiderpreviewSDK).
+* Windos UWP demo - Source code in the 3DCars folder. You will need to add your Bing Maps key into the MainPage.xaml.cs file where it says "Your_Bing_Maps_Key". Requires [Fall Creators Update and SDK](https://www.microsoft.com/en-us/software-download/windowsinsiderpreviewSDK).
+
+## How to get a free Bing Maps key so you can start developing today
+
+* Go to https://www.bingmapsportal.com/
+* Press the sign in button and follow the steps to sign up.
+* Once logged in go to My Account -> My Keys
+* Press the button to create a new key.
+* Add an application name and optionally a URL. It doesn’t matter what this is, it’s for your own information to help remember what the key is for. Set the key type to Basic, and the application type to public website. This will give you 125,000 transactions a year for free. 
+* Now that you have a key, it can be used to access all of the Bing Maps map controls and services.
+
 
 ## Bing Maps Resources
 

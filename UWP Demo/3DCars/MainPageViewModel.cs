@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Windows.Input;
 using Windows.Devices.Geolocation;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Maps;
 
@@ -9,11 +10,15 @@ namespace _3DCars
     public class MainPageViewModel : ViewModel
     {
         private MapControl map;
+        private DispatcherTimer timer;
         private TextBlock status;
 
         private string city;
         private MapProjection mapProjection = MapProjection.WebMercator;
         private MapStyle mapStyle = MapStyle.Road;
+
+        private bool showingMapToolbar;
+        private bool showingRoutes;
 
         /// <summary>
         /// Used to set map to lat and long for the Bay Area in San Francisco, US
@@ -37,9 +42,10 @@ namespace _3DCars
             { "Seattle", SeattleGeopoint },
         };
 
-        public void Connect(MapControl map, TextBlock status)
+        public void Connect(MapControl map, DispatcherTimer timer, TextBlock status)
         {
             this.map = map;
+            this.timer = timer;
             this.status = status;
         }
 
@@ -49,13 +55,6 @@ namespace _3DCars
                 "\nProjection= " + this.map.MapProjection +
                 "\nStyle= " + this.map.Style +
                 "\nStyleSheet= " + GetMapStyleSheetName(this.map.StyleSheet);
-        }
-
-        public void EnableToolbar()
-        {
-            this.map.RotateInteractionMode = MapInteractionMode.PointerKeyboardAndControl;
-            this.map.TiltInteractionMode = MapInteractionMode.PointerKeyboardAndControl;
-            this.map.ZoomInteractionMode = MapInteractionMode.PointerKeyboardAndControl;
         }
 
         public string City
@@ -83,6 +82,81 @@ namespace _3DCars
             }
         }
 
+        public bool CanPlay
+        {
+            get { return !this.timer.IsEnabled;  }
+            set
+            {
+                if (this.timer.IsEnabled == value)
+                {
+                    if (!this.timer.IsEnabled)
+                    {
+                        this.timer.Start();
+                        this.NotifyPropertyChanged(nameof(CanPause));
+                        this.NotifyPropertyChanged(nameof(CanStop));
+                    }
+                    this.NotifyPropertyChanged();
+                }
+            }
+        }
+
+        public bool CanPause
+        {
+            get { return this.timer.IsEnabled; }
+            set
+            {
+                if (this.timer.IsEnabled != value)
+                {
+                    if (value)
+                    {
+                        this.timer.Start();
+                        this.NotifyPropertyChanged(nameof(CanPlay));
+                        this.NotifyPropertyChanged(nameof(CanStop));
+                    }
+                    else
+                    {
+                        this.timer.Stop();
+                        this.NotifyPropertyChanged(nameof(CanPlay));
+                    }
+                    this.NotifyPropertyChanged();
+                }
+            }
+        }
+
+        public bool CanStop
+        {
+            get { return this.timer.IsEnabled; }
+            set
+            {
+                if (this.timer.IsEnabled != value)
+                {
+                    if (this.timer.IsEnabled)
+                    {
+                        this.timer.Stop();
+                        this.NotifyPropertyChanged(nameof(CanPause));
+                        this.NotifyPropertyChanged(nameof(CanPlay));
+                    }
+                    this.NotifyPropertyChanged();
+                }
+            }
+        }
+
+        public bool IsSymbolicMap
+        {
+            get { return this.mapStyle == MapStyle.Road; }
+            set
+            {
+                if (value)
+                {
+                    SetMapMode(MapStyle.Road);
+                }
+                else
+                {
+                    SetMapMode(MapStyle.AerialWithRoads);
+                }
+            }
+        }
+
         public bool IsGlobeProjection
         {
             get { return this.mapProjection == MapProjection.Globe; }
@@ -95,6 +169,19 @@ namespace _3DCars
                 else
                 {
                     this.SetMapProjection(MapProjection.WebMercator);
+                }
+            }
+        }
+
+        public bool IsShowingRoutes
+        {
+            get { return this.showingRoutes;  }
+            set
+            {
+                if (this.showingRoutes != value)
+                {
+                    this.showingRoutes = value;
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -119,6 +206,46 @@ namespace _3DCars
                     this.map.Style = value;
                     this.NotifyPropertyChanged();
                 }
+            }
+        }
+
+        public bool MapToolbarEnabled
+        {
+            get { return this.showingMapToolbar; }
+            set
+            {
+                if (this.showingMapToolbar != value)
+                {
+                    this.showingMapToolbar = value;
+
+                    var mode = value ?
+                        MapInteractionMode.PointerKeyboardAndControl :
+                        MapInteractionMode.Auto;
+                    this.map.RotateInteractionMode = mode;
+                    this.map.TiltInteractionMode = mode;
+                    this.map.ZoomInteractionMode = mode;
+                }
+            }
+        }
+
+        public void UpdateControls()
+        {
+            NotifyPropertyChanged(nameof(CanPlay));
+            NotifyPropertyChanged(nameof(CanPause));
+            NotifyPropertyChanged(nameof(CanStop));
+        }
+
+        private void SetMapMode(MapStyle mode)
+        {
+            if (this.mapStyle != mode)
+            {
+                this.mapStyle = mode;
+
+                var stylesheet = (mode == MapStyle.Road) ?
+                    MapStyleSheet.RoadLight() :
+                    MapStyleSheet.AerialWithOverlay();
+                this.map.StyleSheet = stylesheet;
+                this.NotifyPropertyChanged(nameof(IsSymbolicMap));
             }
         }
 
@@ -165,6 +292,6 @@ namespace _3DCars
         }
 
         public ICommand DemoCommand { get; set; }
-        public ICommand OpenFileCommand { get; set; }
+        public ICommand DemoClearCommand { get; set; }
     }
 }

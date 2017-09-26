@@ -9,7 +9,6 @@ using Windows.Services.Maps;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.Storage.Streams;
-using Windows.UI.Core;
 using Windows.UI.Xaml.Controls.Maps;
 
 namespace _3DCars
@@ -67,9 +66,8 @@ namespace _3DCars
         public async Task<bool> LoadAsync(Models flags)
         {
             bool result = true;
-            if (flags.HasFlag(Models.HammerheadBlack) |
-                flags.HasFlag(Models.HammerheadSilver) |
-                flags.HasFlag(Models.HammerheadWhite))
+            if (flags.HasFlag(Models.HammerheadBlack) ||
+                flags.HasFlag(Models.HammerheadSilver))
             {
                 result = false;
             }
@@ -77,11 +75,18 @@ namespace _3DCars
             {
                 result &= await LoadFromUriAsyncIfNeeded(Car.HammerheadRedUri);
             }
-            if (flags.HasFlag(Models.ShiftBlack) |
-                flags.HasFlag(Models.ShiftBlue) |
+            if (flags.HasFlag(Models.HammerheadWhite))
+            {
+                result &= await LoadFromUriAsyncIfNeeded(Car.HammerheadWhiteUri);
+            }
+            if (flags.HasFlag(Models.ShiftBlack) ||
                 flags.HasFlag(Models.ShiftGray))
             {
                 result = false;
+            }
+            if (flags.HasFlag(Models.ShiftBlue))
+            {
+                result &= await LoadFromUriAsyncIfNeeded(Car.ShiftBlueUri);
             }
             if (flags.HasFlag(Models.ShiftGold))
             {
@@ -292,7 +297,7 @@ namespace _3DCars
                 if (!nextLocation.Equals(lastLocation.Position))
                 {
                     this.mapElement.Heading = Spatial.HeadingInDegrees(lastLocation.Position, nextLocation) + DefaultHeading;
-                    this.mapElement.Location = new Geopoint(nextLocation);
+                    this.mapElement.Location = new Geopoint(nextLocation, AltitudeReferenceSystem.Terrain);
                 }
             }
 
@@ -442,10 +447,10 @@ namespace _3DCars
     {
         public new const string Uri = "ms-appx:///Resources/SchoolBus.3mf";
 
-        public SchoolBus(string uri = Uri, float scale = 0.0175f) : base(uri, scale)
+        public SchoolBus(string uri = Uri, float scale = 0.0275f) : base(uri, scale)
         {
         }
-        public SchoolBus(float speed, string uri = Uri, float scale = 0.0175f) : base(speed, uri, scale)
+        public SchoolBus(float speed, string uri = Uri, float scale = 0.0275f) : base(speed, uri, scale)
         {
         }
     }

@@ -18,9 +18,17 @@
             <CommandBar.Content>
                 <TextBlock Text="{x:Bind ViewModel.City, Mode=OneWay}" Margin="12,14"/>
             </CommandBar.Content>
-            <AppBarToggleButton Icon="World" Label="Globe" IsChecked="{x:Bind ViewModel.IsGlobeProjection, Mode=TwoWay}" />
+            <AppBarButton x:Name="DemoButton" Icon="Refresh" Label="Demo" Command="{x:Bind ViewModel.DemoCommand}" />
             <AppBarSeparator />
-            <AppBarButton x:Name="DemoButton" Icon="SolidStar" Label="Demo" Command="{x:Bind ViewModel.DemoCommand}" />
+            <AppBarToggleButton x:Name="PlayButton" Icon="Play" Label="Play" IsChecked="{x:Bind ViewModel.CanPlay, Mode=TwoWay}" />
+            <AppBarToggleButton x:Name="PauseButton" Icon="Pause" Label="Pause" IsChecked="{x:Bind ViewModel.CanPause, Mode=TwoWay}" />
+            <AppBarToggleButton x:Name="StopButton" Icon="Stop" Label="Pause" IsChecked="{x:Bind ViewModel.CanStop, Mode=TwoWay}" />
+            <AppBarSeparator />
+            <AppBarButton Icon="Clear" Label="Clear" Command="{x:Bind ViewModel.DemoClearCommand}" />
+            <AppBarSeparator />
+            <AppBarToggleButton Icon="Map" Label="Show Routes" IsChecked="{x:Bind ViewModel.IsShowingRoutes, Mode=TwoWay}" />
+            <AppBarToggleButton Icon="Globe" Label="Symbolic" IsChecked="{x:Bind ViewModel.IsSymbolicMap, Mode=TwoWay}" />
+            <AppBarToggleButton Icon="World" Label="Globe" IsChecked="{x:Bind ViewModel.IsGlobeProjection, Mode=TwoWay}" />
         </CommandBar>
 
         <maps:MapControl Grid.Row="1"
@@ -32,6 +40,10 @@
             >
             <maps:MapControl.ContextFlyout>
                 <MenuFlyout x:Name="contextMenu">
+                    <MenuFlyoutItem
+                        Tag="Seattle"
+                        Text="Go to Seattle, US"
+                        Click="GoToMenuItem_Click"/>
                     <MenuFlyoutSeparator />
                     <MenuFlyoutItem
                         Tag="Rome"
@@ -40,10 +52,6 @@
                     <MenuFlyoutItem
                         Tag="San Francisco"
                         Text="Go to San Francisco, US"
-                        Click="GoToMenuItem_Click"/>
-                    <MenuFlyoutItem
-                        Tag="Seattle"
-                        Text="Go to Seattle, US"
                         Click="GoToMenuItem_Click"/>
                 </MenuFlyout>
             </maps:MapControl.ContextFlyout>

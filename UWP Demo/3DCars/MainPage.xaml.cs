@@ -6,8 +6,13 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Maps;
 
+// The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
+
 namespace _3DCars
 {
+    /// <summary>
+    /// An empty page that can be used on its own or navigated to within a Frame.
+    /// </summary>
     public sealed partial class MainPage : Page
     {
         private class CarsToRender
@@ -28,9 +33,10 @@ namespace _3DCars
 
         public MainPageViewModel ViewModel;
 
-        private const string ServiceToken = "Your_Bing_Maps_Key";
-
+        private const int NumberOfRoutes = 20;
         private const int UpdatesPerSecond = 60;
+
+        private const string ServiceToken = "Your_Bing_Maps_Key";
 
         public MainPage()
         {
@@ -49,9 +55,11 @@ namespace _3DCars
             this.Timer.Tick += Timer_Tick;
 
             this.ViewModel = new MainPageViewModel();
-            this.ViewModel.Connect(MyMap, Status);
-            this.ViewModel.EnableToolbar();
+            this.ViewModel.Connect(MyMap, Timer, Status);
             this.ViewModel.DemoCommand = new DelegateCommand(this.RunDemo);
+            this.ViewModel.DemoClearCommand = new DelegateCommand(this.ResetDemo);
+            this.ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+            this.ViewModel.MapToolbarEnabled = true;
         }
 
         private async void MyMap_Loaded(object sender, RoutedEventArgs e)
@@ -68,6 +76,30 @@ namespace _3DCars
             contextMenu.ShowAt(sender, args.Position);
         }
 
+        private void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(MainPageViewModel.CanPlay))
+            {
+                // If play cannot longer be pressed, see if the Demo needs to be kickstarted.
+                if (!this.ViewModel.CanPlay &&
+                    SimulatedTraffic.Cars == null)
+                {
+                    RunDemo();
+                }
+            }
+            else if (e.PropertyName == nameof(MainPageViewModel.IsShowingRoutes))
+            {
+                if (this.ViewModel.IsShowingRoutes)
+                {
+                    DisplayRoutes();
+                }
+                else
+                {
+                    ClearRoutes();
+                }
+            }
+        }
+
         private void GoToMenuItem_Click(object sender, RoutedEventArgs e)
         {
             var frameworkElement = (sender as FrameworkElement);
@@ -79,19 +111,43 @@ namespace _3DCars
 
         private void Timer_Tick(object sender, object e)
         {
-            foreach (var car in SimulatedTraffic.Cars)
+            if (!this.Timer.IsEnabled) return;
+#if PRINT_TIMESTAMP
+            System.Diagnostics.Debug.WriteLine("Tick: " + DateTime.Now.TimeOfDay);
+#endif
+
+            if (SimulatedTraffic.Cars != null)
             {
-                car.Update();
+                SimulatedTraffic.Cars.ForEach(car => car.Update());
             }
 
-            foreach (var truck in SimulatedTraffic.Trucks)
+            if (SimulatedTraffic.Trucks != null)
             {
-                truck.Update();
+                SimulatedTraffic.Trucks.ForEach(truck => truck.Update());
             }
+        }
+
+        private void ResetDemo()
+        {
+            this.Timer.Stop();
+
+            ClearCars();
+            this.ViewModel.IsShowingRoutes = false;
+            this.ViewModel.UpdateControls();
         }
 
         private async void RunDemo()
         {
+            this.Timer.Stop();
+
+            PlayButton.IsEnabled = false;
+            PauseButton.IsEnabled = false;
+            StopButton.IsEnabled = false;
+
+            ClearCars();
+            this.ViewModel.IsShowingRoutes = false;
+            this.ViewModel.UpdateControls();
+
             var region = this.MyMap.GetVisibleRegion(MapVisibleRegionKind.Near);
 
             var pointGenerator = new PointGenerator();
@@ -99,15 +155,22 @@ namespace _3DCars
 
             var routeGenerator = new RouteGenerator(pointGenerator);
 
+            var carModels = new List<string>()
+            {
+                Car.HammerheadRedUri,
+                Car.HammerheadWhiteUri,
+                Car.ShiftBlueUri,
+                Car.ShiftGoldUri,
+            };
+            int model = 0;
+
             SimulatedTraffic.Cars = new List<Car>();
-            SimulatedTraffic.Routes = await routeGenerator.GenerateRoutes(20);
+            SimulatedTraffic.Routes = await routeGenerator.GenerateRoutes(NumberOfRoutes);
             foreach (var route in SimulatedTraffic.Routes)
             {
-                var car = new SchoolBus();
-                //var car = new Car();
                 //var car = new PoliceCar();
-                //var car = new DumpTruck();
-                //var car = new SemiTruck();
+                //var car = new SchoolBus();
+                var car = new Car(carModels.ElementAt(model++ % carModels.Count));
                 car.Connect(this.MyMap, route);
                 SimulatedTraffic.Cars.Add(car);
             }
@@ -119,13 +182,44 @@ namespace _3DCars
                 var truck = new SemiTruck();
                 truck.Connect(this.MyMap, route);
                 SimulatedTraffic.Trucks.Add(truck);
-            }
 
-            DisplayRoutes();
+                var dumptruck = new DumpTruck(40);
+                dumptruck.Connect(this.MyMap, route);
+                SimulatedTraffic.Trucks.Add(dumptruck);
+
+                var car = new Car(55, carModels.ElementAt(model++ % carModels.Count));
+                car.Connect(this.MyMap, route);
+                SimulatedTraffic.Cars.Add(car);
+            }
 
             // Set the interval to 16ms (60 ticks / sec)
             this.Timer.Interval = new TimeSpan(0, 0, 0, 0, 1000 / UpdatesPerSecond);
             this.Timer.Start();
+
+            this.ViewModel.UpdateControls();
+
+            PlayButton.IsEnabled = true;
+            PauseButton.IsEnabled = true;
+            StopButton.IsEnabled = true;
+        }
+
+        private void ClearCars()
+        {
+            this.Timer.Stop();
+
+            if (SimulatedTraffic.Cars != null)
+            {
+                SimulatedTraffic.Cars.ForEach(car => car.Clear());
+                SimulatedTraffic.Cars.Clear();
+                SimulatedTraffic.Cars = null;
+            }
+
+            if (SimulatedTraffic.Trucks != null)
+            {
+                SimulatedTraffic.Trucks.ForEach(truck => truck.Clear());
+                SimulatedTraffic.Trucks.Clear();
+                SimulatedTraffic.Trucks = null;
+            }
         }
 
         private void ClearRoutes()
@@ -135,20 +229,17 @@ namespace _3DCars
 
         private void DisplayRoutes()
         {
+            if (SimulatedTraffic.Routes == null) return;
+
             var routeColors = new List<Windows.UI.Color>()
             {
-                //Windows.UI.Colors.Aquamarine,
-                //Windows.UI.Colors.Black,
-                //Windows.UI.Colors.BlueViolet,
-                //Windows.UI.Colors.Coral,
-                //Windows.UI.Colors.DarkSeaGreen,
-
                 Windows.UI.Colors.CornflowerBlue,
                 Windows.UI.Colors.Gold,
                 Windows.UI.Colors.Lavender,
                 Windows.UI.Colors.LavenderBlush,
                 Windows.UI.Colors.LightBlue,
                 Windows.UI.Colors.LightGray,
+                Windows.UI.Colors.LightSkyBlue,
                 Windows.UI.Colors.LightSteelBlue,
                 Windows.UI.Colors.Orange,
                 Windows.UI.Colors.SandyBrown,
