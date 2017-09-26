@@ -6,11 +6,11 @@ Code samples and resources from the Bing Maps session at the Ignite 2017 confere
 
 * New REST APIs
 	* [Truck Routing API](http://bmlabs.azurewebsites.net/v8-Trucks/index.html)
-	* Isochrone API [demo 1](http://bmlabs.azurewebsites.net/v8-Isochrone/index.html) [demo 2](http://rbrundritt.azurewebsites.net/demos/newservices/Ischrones/IsochroneContours.html)
+	* Isochrone API [demo 1](http://bmlabs.azurewebsites.net/v8-Isochrone/index.html) | [demo 2](http://rbrundritt.azurewebsites.net/demos/newservices/Ischrones/IsochroneContours.html)
 	* [Distance Matrix API](http://bmlabs.azurewebsites.net/v8-TSP/index.html)
 	* [Local Insights API](http://bmlabs.azurewebsites.net/v8-NavJoin/index.html)
 * [Bing Maps V8 demos](http://bingmapsv8samples.azurewebsites.net/)
-* Windos UWP demo - Source code in the 3DCars folder. You will need to add your Bing Maps key into the MainPage.xaml.cs file where it says "Your_Bing_Maps_Key". Requires [Fall Creators Update and SDK](https://www.microsoft.com/en-us/software-download/windowsinsiderpreviewSDK).
+* Windos UWP demo - Source code in the UWP -> 3DCars folder. You will need to add your Bing Maps key into the MainPage.xaml.cs file where it says "Your_Bing_Maps_Key". Requires [Fall Creators Update and SDK](https://www.microsoft.com/en-us/software-download/windowsinsiderpreviewSDK).
 
 ## How to get a free Bing Maps key so you can start developing today
 
