@@ -36,7 +36,7 @@ namespace _3DCars
         private const int NumberOfRoutes = 20;
         private const int UpdatesPerSecond = 60;
 
-        private const string ServiceToken = "Your_Bing_Maps_Key";
+        private const string ServiceToken = "hUikWnph4qESMvOtIn4C~EBknoIBYklzUqS0Di0rttWFC4sRJzjq0U993LpJzV6S5yap2C8GrmSIPOgaHN1Wht0RpbcGXJDzvpt0Ny6pHlw~Al-HNAp4OV2It6cySlnSag3t4eIltWHCqBHgodIbhYAlCyRRwNYR_NU12j_v9hwb";
 
         public MainPage()
         {

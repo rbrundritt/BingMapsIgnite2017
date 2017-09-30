@@ -2,6 +2,8 @@
 
 Code samples and resources from the Bing Maps session at the Ignite 2017 conference ([Session Overview](https://myignite.microsoft.com/sessions/55841?source=sessions)).
 
+[![Session Recording](blob/master/sessionRecording.png)](https://www.youtube.com/watch?v=7WGhLfXerY4)
+
 ## Session Demos
 
 * New REST APIs
